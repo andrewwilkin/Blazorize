@@ -15,6 +15,8 @@ namespace Blazorise.Charts
     public interface IBaseChart
     {
         Task Event( string eventName, int datasetIndex, int index, string model );
+
+        Task<int> TooltipItemSortHandler(TooltipItem a, TooltipItem b);
     }
 
     public abstract class BaseChart<TDataSet, TItem, TOptions, TModel> : BaseComponent, IDisposable, IBaseChart
@@ -113,7 +115,13 @@ namespace Blazorise.Charts
         {
             dotNetObjectRef = dotNetObjectRef ?? JS.CreateDotNetObjectRef( new ChartAdapter( this ) );
 
-            await JS.InitializeChart( JSRuntime, dotNetObjectRef, Clicked.HasDelegate, Hovered.HasDelegate, ElementId, Type, Data, Options, DataJsonString, OptionsJsonString );
+            var chartCallbacks = new ChartCallbacks { HasClickEvent = Clicked.HasDelegate, HasHoverEvent = Hovered.HasDelegate };
+            var chartCallbacksTooltips = new ChartCallbacksTooltips { HasItemSorting = TooltipItemSorting.HasDelegate };
+            chartCallbacks.ChartCallbacksTooltips = chartCallbacksTooltips;
+
+
+
+            await JS.InitializeChart( JSRuntime, dotNetObjectRef, chartCallbacks, ElementId, Type, Data, Options, DataJsonString, OptionsJsonString );
         }
 
         /// <summary>
@@ -130,6 +138,8 @@ namespace Blazorise.Charts
             }
         }
 
+        // ANDY
+        // ToDo: Look at refactoring this
         public Task Event( string eventName, int datasetIndex, int index, string modelJson )
         {
             var model = Serialize( modelJson );
@@ -143,6 +153,16 @@ namespace Blazorise.Charts
 
             return Task.CompletedTask;
         }
+
+
+        public Task<int> TooltipItemSortHandler(TooltipItem a, TooltipItem b)
+        {
+            Console.WriteLine("TooltipItemSortHandler Called");
+            var args = new TooltipItemSortingEventArgs(a, b);
+            return Task.FromResult(-3);
+            //return TooltipItemSorting.InvokeAsync(args);
+        }
+
 
         // TODO: this is just temporary until System.Text.Json implements serialization of the inheriter fields.
         private object Serialize( string data )
@@ -200,6 +220,8 @@ namespace Blazorise.Charts
         [Parameter] public EventCallback<ChartMouseEventArgs> Clicked { get; set; }
 
         [Parameter] public EventCallback<ChartMouseEventArgs> Hovered { get; set; }
+
+        [Parameter] public EventCallback<TooltipItemSortingEventArgs> TooltipItemSorting { get; set; }
 
         [Inject] IJSRuntime JSRuntime { get; set; }
 

@@ -29,9 +29,10 @@ namespace Blazorise.Charts
             }
         }
 
-        public static ValueTask<bool> InitializeChart<TItem, TOptions>( IJSRuntime runtime, DotNetObjectReference<ChartAdapter> dotNetObjectReference, bool hasClickEvent, bool hasHoverEvent, string canvasId, ChartType type, ChartData<TItem> data, TOptions options, string dataJsonString, string optionsJsonString )
+        //public static ValueTask<bool> InitializeChart<TItem, TOptions>( IJSRuntime runtime, DotNetObjectReference<ChartAdapter> dotNetObjectReference, bool hasClickEvent, bool hasHoverEvent, string canvasId, ChartType type, ChartData<TItem> data, TOptions options, string dataJsonString, string optionsJsonString )
+        public static ValueTask<bool> InitializeChart<TItem, TOptions>(IJSRuntime runtime, DotNetObjectReference<ChartAdapter> dotNetObjectReference, ChartCallbacks chartCallbacks, string canvasId, ChartType type, ChartData<TItem> data, TOptions options, string dataJsonString, string optionsJsonString)
         {
-            return runtime.InvokeAsync<bool>( "blazoriseCharts.initialize", dotNetObjectReference, hasClickEvent, hasHoverEvent, canvasId, ToChartTypeString( type ), ToChartDataSet( data ), options, dataJsonString, optionsJsonString );
+            return runtime.InvokeAsync<bool>( "blazoriseCharts.initialize", dotNetObjectReference, chartCallbacks, canvasId, ToChartTypeString( type ), ToChartDataSet( data ), options, dataJsonString, optionsJsonString );
         }
 
         public static ValueTask<bool> Destroy( IJSRuntime runtime, string id )

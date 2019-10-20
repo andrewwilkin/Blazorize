@@ -1,7 +1,7 @@
 window.blazoriseCharts = {
     _instances: [],
 
-    initialize: (dotnetAdapter, hasClickEvent, hasHoverEvent, canvasId, type, data, options, dataJsonString, optionsJsonString) => {
+    initialize: (dotnetAdapter, chartCallbacks, canvasId, type, data, options, dataJsonString, optionsJsonString) => {
         if (dataJsonString)
             data = JSON.parse(dataJsonString);
 
@@ -25,7 +25,7 @@ window.blazoriseCharts = {
                 chart: chart
             };
 
-            window.blazoriseCharts.wireEvents(dotnetAdapter, hasClickEvent, hasHoverEvent, canvas, chart);
+            window.blazoriseCharts.wireEvents(dotnetAdapter, chartCallbacks, canvas, chart);
         }
 
         return true;
@@ -63,8 +63,10 @@ window.blazoriseCharts = {
         return true;
     },
 
-    wireEvents: (dotnetAdapter, hasClickEvent, hasHoverEvent, canvas, chart) => {
-        if (hasClickEvent) {
+    wireEvents: (dotnetAdapter, chartCallbacks, canvas, chart) => {
+        //console.log(chartCallbacks);
+        if (chartCallbacks.hasClickEvent) {
+            //console.log('wiring click event');
             canvas.onclick = function (evt) {
                 var elemetn = chart.getElementsAtEvent(evt);
 
@@ -78,7 +80,7 @@ window.blazoriseCharts = {
             };
         }
 
-        if (hasHoverEvent) {
+        if (chartCallbacks.hasHoverEvent) {
             chart.config.options.onHover = function (evt) {
                 var element = chart.getElementsAtEvent(evt);
 
@@ -90,6 +92,25 @@ window.blazoriseCharts = {
                     dotnetAdapter.invokeMethodAsync("Event", "hover", datasetIndex, index, JSON.stringify(model));
                 }
             };
+        }
+
+        if (chartCallbacks.chartCallbacksTooltips.hasItemSorting) {
+            console.log('Wiring In Tooltip Item Sorting');
+            chart.config.options.tooltips.mode = 'index';
+            chart.config.options.tooltips.intersect = true;
+            chart.config.options.tooltips.itemSort = function (a, b) {
+                console.log('In JS function');
+                console.log(a.datasetIndex);
+                console.log(b.datasetIndex);
+
+                return dotnetAdapter.invokeMethodAsync("TooltipItemSortHandler", JSON.stringify(a), JSON.stringify(b))
+                    .then( function(r) { return r });
+
+                return -1;
+                //console.log(result);
+                //return result;
+                //return dotnetAdapter.invokeMethodAsync("TooltipItemSortHandler", a, b);    
+            }
         }
     },
 

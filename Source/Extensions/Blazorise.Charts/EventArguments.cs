@@ -33,4 +33,24 @@ namespace Blazorise.Charts
         /// </remarks>
         public object Model { get; }
     }
+
+
+    public class TooltipItemSortingEventArgs : EventArgs
+    {
+        public TooltipItemSortingEventArgs(TooltipItem a, TooltipItem b)
+        {
+            A = a;
+            B = b;
+        }
+
+        /// <summary>
+        /// This is the first tooltip item to compare order
+        /// </summary>
+        public TooltipItem A { get; }
+
+        /// <summary>
+        /// This is the second tooltip item to compare order
+        /// </summary>
+        public TooltipItem B { get; }
+    }
 }

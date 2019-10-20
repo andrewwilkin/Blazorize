@@ -18,7 +18,7 @@
                 <Button Clicked="@(async () => await HandleRedraw( barChart, GetBarChartDataset ))">Redraw</Button>
             </CardHeader>
             <CardBody>
-                <Chart @ref="barChart" Type="ChartType.Bar" TItem="double" />
+                <Chart @ref="barChart" Type="ChartType.Bar"  Clicked="@(async (ChartMouseEventArgs) =>  ClickHandlerTest(ChartMouseEventArgs))" TooltipItemSorting="@(async (TooltipItemSortingEventArgs) =>  TooltipItemSortingTest(TooltipItemSortingEventArgs))" TItem="double" />
             </CardBody>
         </Card>
     </Column>
@@ -83,6 +83,21 @@
 
     bool isAlreadyInitialised;
 
+    void ClickHandlerTest(ChartMouseEventArgs args)
+    {
+        Console.WriteLine(args.Index);
+    }
+
+    int TooltipItemSortingTest(TooltipItemSortingEventArgs args)
+    {
+        Console.WriteLine("Invoked Tooltip Sorting");
+        var result = args.B.DatasetIndex - args.A.DatasetIndex;
+        Console.WriteLine($"A: {args.A.DatasetIndex}  B: {args.B.DatasetIndex}");
+        Console.WriteLine(result);
+        return args.B.DatasetIndex - args.A.DatasetIndex;
+    }
+
+
     protected override async Task OnAfterRenderAsync( bool firstRender )
     {
         if ( !isAlreadyInitialised )
@@ -108,6 +123,8 @@
         chart.AddLabel( Labels );
 
         chart.AddDataSet( getDataSet() );
+
+        chart.AddDataSet( getDataSet() ); // For testing item  call baxk
 
         await chart.Update();
     }

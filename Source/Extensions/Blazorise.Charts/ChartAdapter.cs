@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.JSInterop;
 #endregion
@@ -21,6 +22,21 @@ namespace Blazorise.Charts
         public Task Event( string eventName, int datasetIndex, int index, string model )
         {
             return chart.Event( eventName, datasetIndex, index, model );
+        }
+
+        [JSInvokable]
+        public Task<int> TooltipItemSortHandler ( string a, string b)
+        {
+
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+            var tooltipItemA = JsonSerializer.Deserialize<TooltipItem>(a, options);
+            var tooltipItemB = JsonSerializer.Deserialize<TooltipItem>(b, options);
+
+            return chart.TooltipItemSortHandler(tooltipItemA, tooltipItemB);
         }
     }
 }
